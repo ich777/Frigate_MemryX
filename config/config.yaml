@@ -10,36 +10,36 @@ detectors:
 #   model_type: yolov9
 #   width: 640
 #   height: 640
-#   path: /memryx_models/yolov9/YOLO_v9_small_640_640_3_onnx.dfp
-#   labelmap_path: /memryx_models/yolov9/labelmap.txt
+#   # path: YOLO_v9_small_640_640_3_onnx.dfp  ##Model is normally fetched through the runtime, so 'path' can be omitted.##
+#   labelmap_path: /labelmap/coco-80.txt
 
 # model:
 #   model_type: yolov8
 #   width: 640
 #   height: 640
-#   path: /memryx_models/yolov8/YOLO_v8_small_640_640_3_onnx.dfp
-#   labelmap_path: /memryx_models/yolov8/labelmap.txt
+#   # path: YOLO_v8_small_640_640_3_onnx.dfp  ##Model is normally fetched through the runtime, so 'path' can be omitted.##
+#   labelmap_path: /labelmap/coco-80.txt
 
 model:
   model_type: yolonas
   width: 320
   height: 320
-  path: /memryx_models/yolo_nas/yolo_nas_s.dfp
-  labelmap_path: /memryx_models/yolo_nas/labelmap.txt
+  # path: yolo_nas_s.dfp  ##Model is normally fetched through the runtime, so 'path' can be omitted.##
+  labelmap_path: /labelmap/coco-80.txt
 
 # model:
 #   model_type: yolox
 #   width: 640
 #   height: 640
-#   path: /memryx_models/yolox/YOLOX_640_640_3_onnx.dfp
-#   labelmap_path: /memryx_models/yolox/labelmap.txt
+#   # path: YOLOX_640_640_3_onnx.dfp  ##Model is normally fetched through the runtime, so 'path' can be omitted.##
+#   labelmap_path: /labelmap/coco-80.txt
 
 # model:
 #   model_type: ssd
 #   width: 320
 #   height: 320
-#   path: /memryx_models/ssdlite/SSDlite_MobileNet_v2_320_320_3_onnx.dfp
-#   labelmap_path: /memryx_models/ssdlite/labelmap.txt
+#   # path: SSDlite_MobileNet_v2_320_320_3_onnx.dfp  ##Model is normally fetched through the runtime, so 'path' can be omitted.##
+#   labelmap_path: /labelmap/coco-80.txt
 
 cameras:
   Cam1:

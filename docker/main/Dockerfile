@@ -176,6 +176,9 @@ RUN wget -q https://bootstrap.pypa.io/get-pip.py -O get-pip.py \
     && sed -i 's/args.append("setuptools")/args.append("setuptools==77.0.3")/' get-pip.py \
     && python3 get-pip.py "pip"
 
+# Build MemryX SDK wheel
+RUN pip3 wheel --wheel-dir=/wheels/memx/ --extra-index-url https://developer.memryx.com/pip memryx~=1.2.0
+
 COPY docker/main/requirements.txt /requirements.txt
 RUN pip3 install -r /requirements.txt
 
@@ -240,75 +243,35 @@ RUN wget -q https://bootstrap.pypa.io/get-pip.py -O get-pip.py \
     && sed -i 's/args.append("setuptools")/args.append("setuptools==77.0.3")/' get-pip.py \
     && python3 get-pip.py "pip"
 
-RUN --mount=type=bind,from=wheels,source=/wheels,target=/deps/wheels \
-    pip3 install -U /deps/wheels/*.whl
+RUN --mount=type=bind,from=wheels,source=/wheels,target=/wheels \
+    bash -euo pipefail -c '\
+      echo "→ Installing MemryX SDK wheels…"; \
+      pip3 install --no-deps /wheels/memx/*.whl; \
+      echo "→ Installing/overwriting with project wheels…"; \
+      pip3 install --no-deps --upgrade /wheels/*.whl; \
+    '
 
 COPY --from=deps-rootfs / /
 
-####
-#
-# MemryX Support
-#
-# 1.  Install system dependencies and Python packages
-# 2. Add MemryX repo and install memx-accl
-#
-####
-# Install system dependencies
-RUN apt-get -qq update && \
-    apt-get -qq install -y --no-install-recommends \
-    libhdf5-dev \
-    python3-dev \
-    cmake \
-    python3-venv \
-    build-essential \
-    curl \
-    wget \
-    gnupg 
-
-RUN python3 -m pip install --upgrade pip && \
-    python3 -m pip install --extra-index-url https://developer.memryx.com/pip memryx~=1.2.0
-
-# Add MemryX repository and key
+# Install memx-accl using a custom function that installs the latest 1.2.x version and holds it.
 RUN curl -fsSL https://developer.memryx.com/deb/memryx.asc | tee /etc/apt/trusted.gpg.d/memryx.asc && \
     echo "deb https://developer.memryx.com/deb stable main" > /etc/apt/sources.list.d/memryx.list && \
-    apt-get update -qq
-
-# Install memx-accl using a custom function that installs the latest 1.2.x version and holds it.
-RUN bash -c '\
-install_and_hold() { \
-  echo "Processing package: $1..."; \
-  local versions; \
-  versions=$(apt-cache policy "$1" | grep -E "^\s*(\*{3}\s*)?1\.2" | awk "{if(\$1==\"***\") print \$2; else print \$1}"); \
-  if [ -z \"$versions\" ]; then \
-    echo "No 1.2 versions found for package $1" >&2; \
-    exit 1; \
-  fi; \
-  local latest; \
-  latest=$(echo "$versions" | sort -V | tail -n 1); \
-  echo "Latest 1.2.x version of $1 is: $latest"; \
-  echo "Installing $1 version $latest..."; \
-  apt install -y "$1=${latest}" || { echo "Installation of $1 version $latest failed." >&2; exit 1; }; \
-  echo "Marking $1 at version $latest as held..."; \
-  apt-mark hold "$1" || { echo "Failed to hold package $1." >&2; exit 1; }; \
-  echo "Package $1 installed and pinned at version $latest successfully."; \
-}; \
-install_and_hold memx-accl'
-
-# Debug message
-RUN echo "Hello from inside MemryX Docker image!"
-
-# Set the working directory for model files
-WORKDIR /memryx_models
-
-# Download and extract MemryX model files
-RUN wget -O yolox.zip https://developer.memryx.com/example_files/1p2_frigate/yolox.zip && unzip yolox.zip && \
-    wget -O ssdlite.zip https://developer.memryx.com/example_files/1p2_frigate/ssdlite.zip && unzip ssdlite.zip && \
-    wget -O yolo_nas.zip https://developer.memryx.com/example_files/1p2_frigate/yolo_nas.zip && unzip yolo_nas.zip && \
-    wget -O yolov9.zip https://developer.memryx.com/example_files/1p2_frigate/yolov9.zip && unzip yolov9.zip && \
-    wget -O yolov8.zip https://developer.memryx.com/example_files/1p2_frigate/yolov8.zip && unzip yolov8.zip
-
-# Set permissions for the models directory
-RUN chmod -R 755 /memryx_models
+    apt-get update -qq && \
+    bash -c '\
+    install_and_hold() { \
+      echo "Processing package: $1..."; \
+      local versions; \
+      versions=$(apt-cache policy "$1" | grep -E "^\s*(\*{3}\s*)?1\.2" | awk "{if(\$1==\"***\") print \$2; else print \$1}"); \
+      if [ -z \"$versions\" ]; then \
+        echo "No 1.2 versions found for package $1" >&2; exit 1; \
+      fi; \
+      local latest; \
+      latest=$(echo "$versions" | sort -V | tail -n 1); \
+      echo "Installing $1 version $latest..."; \
+      apt install -y --no-install-recommends "$1=${latest}" || { echo "Install failed." >&2; exit 1; }; \
+      apt-mark hold "$1"; \
+    }; \
+    install_and_hold memx-accl'
 
 RUN ldconfig
 

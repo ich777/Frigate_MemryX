@@ -25,6 +25,8 @@ class PixelFormatEnum(str, Enum):
 class InputTensorEnum(str, Enum):
     nchw = "nchw"
     nhwc = "nhwc"
+    hwnc = "hwnc"
+    hwcn = "hwcn"
 
 
 class InputDTypeEnum(str, Enum):
@@ -37,9 +39,9 @@ class ModelTypeEnum(str, Enum):
     rfdetr = "rfdetr"
     ssd = "ssd"
     yolox = "yolox"
-    yolov9 = "yolov9"
-    yolov8 = "yolov8"
     yolonas = "yolonas"
+    yolov8 = "yolov8"
+    yolov9 = "yolov9"
     yologeneric = "yolo-generic"
 
 
