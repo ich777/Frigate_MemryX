@@ -45,7 +45,7 @@ cameras:
   Cam1:
     ffmpeg:
       inputs:
-        - path: rtsp://admin:NoPa$$word@192.168.56.22:554/cam/realmonitor?channel=1&subtype=0
+        - path: rtsp://admin:NoPa$$word@19x.xx.xx.xx:xxx/cam/realmonitor?channel=1&subtype=0
           roles:
             - detect
             - record
