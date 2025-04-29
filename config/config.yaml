@@ -2,9 +2,12 @@ mqtt:
   enabled: false  # Set this to True if using MQTT for event triggers
 
 detectors:
-  memryx:
+  memx0:
     type: memryx
-    device: PCIe
+    device: PCIe:0
+  # memx1:   ### multiple mx3 can be added
+  #   type: memryx
+  #   device: PCIe:1
 
 # model:
 #   model_type: yolov9

@@ -15,6 +15,7 @@ sudo docker run -d \
   --shm-size=256m \
   -v /home/memryx/Frigate_MemryX/config:/config \
   -e FRIGATE_RTSP_PASSWORD='password' \
+  --add-host gateway.docker.internal:host-gateway \
   --privileged=true \
   -p 8971:8971 \
   -p 8554:8554 \
